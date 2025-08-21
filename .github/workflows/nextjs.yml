@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Node 20 + cache para pnpm usando el lockfile correcto
+      # Node 20 + cache basado en pnpm-lock.yaml
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -30,14 +30,14 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      # Activa pnpm con Corepack (no requiere instalación global)
-      - name: Enable pnpm via Corepack
-        run: |
-          corepack enable
-          corepack prepare pnpm@9 --activate
-          pnpm --version
+      # ⬅️ Instala/activa pnpm ANTES de usarlo
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true  # ejecuta 'pnpm install' automáticamente
 
-      # Configura Pages (inyecta assetPrefix/basePath e imágenes unoptimized para export)
+      # Configura GitHub Pages (ajusta assetPrefix/basePath e imágenes unoptimized)
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -52,11 +52,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
-      # Dependencias
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      # Build + Export (static)
+      # Build + Export (usa binarios locales con pnpm exec)
       - name: Build
         run: pnpm exec next build
 
@@ -74,7 +70,7 @@ jobs:
             cp ./out/index.html ./out/404.html
           fi
 
-      # Sube artefacto a Pages
+      # Sube artefacto para Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
