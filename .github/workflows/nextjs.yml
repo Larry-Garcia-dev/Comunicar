@@ -18,26 +18,27 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      CI: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Node 20 + cache basado en pnpm-lock.yaml
+      # Forzamos npm (ignoramos lockfiles de pnpm/yarn en el workspace)
+      - name: Force npm
+        run: |
+          echo "Using npm; ignoring pnpm/yarn lockfiles in workspace."
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-      # ⬅️ Instala/activa pnpm ANTES de usarlo
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: true  # ejecuta 'pnpm install' automáticamente
-
-      # Configura GitHub Pages (ajusta assetPrefix/basePath e imágenes unoptimized)
+      # Configura Pages (ajusta basePath/assetPrefix e imágenes unoptimized)
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -48,16 +49,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.cjs', '**/*.mjs', 'next.config.*') }}
+          key: ${{ runner.os }}-next-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.cjs', '**/*.mjs', 'next.config.*') }}
           restore-keys: |
-            ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-next-${{ hashFiles('**/package-lock.json') }}-
 
-      # Build + Export (usa binarios locales con pnpm exec)
+      - name: Install dependencies
+        run: npm ci
+
+      # Build + Export (static)
       - name: Build
-        run: pnpm exec next build
+        run: npx --no-install next build
 
       - name: Export static site
-        run: pnpm exec next export
+        run: npx --no-install next export
 
       # Dominio personalizado
       - name: Add CNAME for custom domain
@@ -70,7 +74,6 @@ jobs:
             cp ./out/index.html ./out/404.html
           fi
 
-      # Sube artefacto para Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
