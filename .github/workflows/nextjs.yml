@@ -51,8 +51,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: ${{ steps.detect-package-manager.outputs.manager }}
-          cache-dependency-path: ${{ steps.detect-package-manager.outputs.lockfile }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
 
       # Configura Pages y autoinyecta basePath/assets para export estático si hiciera falta
       - name: Setup Pages
