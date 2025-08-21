@@ -27,6 +27,7 @@ import {
   Target,
   Loader2,
 } from "lucide-react"
+import Image from "next/image"
 
 export default function ComunicarLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -36,7 +37,7 @@ export default function ComunicarLanding() {
     company: "",
     message: "",
   })
-  const [isSubmitting, setIsSubmitting] = useState(false) 
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Scroll animation effect
   useEffect(() => {
@@ -97,8 +98,11 @@ export default function ComunicarLanding() {
       <header className="fixed top-0 w-full bg-background/95 backdrop-blur-sm border-b border-border z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold text-primary font-[var(--font-heading)]">Comunicar</div>
-
+            {/* <div className="text-2xl font-bold text-primary font-[var(--font-heading)]">Comunicar</div> */}
+            <div className="flex items-center gap-2">
+              <Image src="/logo.png" alt="Comunicar Logo" width={90} height={90} />
+              <span className="text-2xl font-bold text-primary font-[var(--font-heading)]"></span>
+            </div>
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
               <button
