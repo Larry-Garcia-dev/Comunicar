@@ -22,42 +22,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Detecta el lockfile para cache (si cambias a npm/yarn, ajusta aquí)
-      - name: Detect package manager
-        id: detect
-        shell: bash
-        run: |
-          if [ -f "${{ github.workspace }}/pnpm-lock.yaml" ]; then
-            echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
-          else
-            echo "Este workflow está preparado para pnpm (hay pnpm-lock.yaml)."
-            echo "Si deseas npm, elimina pnpm-lock.yaml y ajusto el pipeline."
-            echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
-          fi
-
+      # Node 20 + cache para pnpm usando el lockfile correcto
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: ${{ steps.detect.outputs.manager }}
-          cache-dependency-path: ${{ steps.detect.outputs.lockfile }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      # Instala pnpm correctamente y ejecuta 'pnpm install'
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: true   # ejecuta 'pnpm install' automáticamente
+      # Activa pnpm con Corepack (no requiere instalación global)
+      - name: Enable pnpm via Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm --version
 
-      # Configura GitHub Pages (inyecta assetPrefix/basePath e imágenes unoptimized)
+      # Configura Pages (inyecta assetPrefix/basePath e imágenes unoptimized para export)
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           static_site_generator: next
 
-      # Cache de Next para acelerar builds incrementales
+      # Cache incremental de Next.js
       - name: Restore Next.js cache
         uses: actions/cache@v4
         with:
@@ -66,14 +52,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
-      # Build + Export (usa pnpm exec para resolver binarios locales)
+      # Dependencias
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Build + Export (static)
       - name: Build
         run: pnpm exec next build
 
       - name: Export static site
         run: pnpm exec next export
 
-      # CNAME para el dominio personalizado
+      # Dominio personalizado
       - name: Add CNAME for custom domain
         run: echo "comunicar.macondosoftwares.com" > ./out/CNAME
 
@@ -84,6 +74,7 @@ jobs:
             cp ./out/index.html ./out/404.html
           fi
 
+      # Sube artefacto a Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
