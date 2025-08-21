@@ -25,6 +25,7 @@ import {
   Building,
   Handshake,
   Target,
+  Loader2,
 } from "lucide-react"
 
 export default function ComunicarLanding() {
@@ -35,6 +36,7 @@ export default function ComunicarLanding() {
     company: "",
     message: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false) 
 
   // Scroll animation effect
   useEffect(() => {
@@ -57,12 +59,31 @@ export default function ComunicarLanding() {
     return () => observer.disconnect()
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted:", formData)
-    alert("¡Gracias por contactarnos! Te responderemos pronto.")
-    setFormData({ name: "", email: "", company: "", message: "" })
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("https://n8n.macondofood.online/webhook/7255544c-a7f7-4490-b387-c8b73be729fe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        alert("¡Gracias por contactarnos! Te responderemos pronto.")
+        setFormData({ name: "", email: "", company: "", message: "" })
+      } else {
+        alert("Hubo un problema al enviar tu mensaje. Por favor, inténtalo de nuevo.")
+      }
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error)
+      alert("Hubo un error de red al enviar tu mensaje. Por favor, revisa tu conexión e inténtalo de nuevo.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const scrollToSection = (sectionId: string) => {
@@ -583,7 +604,7 @@ export default function ComunicarLanding() {
                   </div>
                   <div className="flex items-center">
                     <Phone className="w-5 h-5 text-primary mr-3" />
-                    <span>+57 (1) 234-5678</span>
+                    <span>+57 (322) 7126-811</span>
                   </div>
                   <div className="flex items-center">
                     <MapPin className="w-5 h-5 text-primary mr-3" />
@@ -632,8 +653,16 @@ export default function ComunicarLanding() {
                         rows={4}
                       />
                     </div>
-                    <Button type="submit" className="w-full">
-                      Enviar mensaje
+
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        "Enviar mensaje"
+                      )}
                     </Button>
                   </form>
                 </CardContent>

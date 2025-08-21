@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
       <head>
-        <link rel="shortcut icon" href="public/placeholder-logo.png"></link>
+        <link rel="shortcut icon" href="/placeholder-logo.png"></link>
         <style>{`
 html {
   font-family: ${dmSans.style.fontFamily};
