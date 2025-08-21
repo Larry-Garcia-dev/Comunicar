@@ -18,50 +18,40 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Detecta el lockfile para cache (si cambias a npm/yarn, ajusta aquí)
       - name: Detect package manager
-        id: detect-package-manager
+        id: detect
         shell: bash
         run: |
           if [ -f "${{ github.workspace }}/pnpm-lock.yaml" ]; then
             echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "install_cmd=install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "runner=pnpm" >> $GITHUB_OUTPUT
             echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
-          elif [ -f "${{ github.workspace }}/yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "install_cmd=install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "runner=yarn" >> $GITHUB_OUTPUT
-            echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
-          elif [ -f "${{ github.workspace }}/package-lock.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "install_cmd=ci" >> $GITHUB_OUTPUT
-            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
-            echo "lockfile=package-lock.json" >> $GITHUB_OUTPUT
           else
-            echo "Unable to determine package manager"
-            exit 1
+            echo "Este workflow está preparado para pnpm (hay pnpm-lock.yaml)."
+            echo "Si deseas npm, elimina pnpm-lock.yaml y ajusto el pipeline."
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
           fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache: ${{ steps.detect.outputs.manager }}
+          cache-dependency-path: ${{ steps.detect.outputs.lockfile }}
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      # Instala pnpm correctamente y ejecuta 'pnpm install'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true   # ejecuta 'pnpm install' automáticamente
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-
-      # Configura Pages y autoinyecta basePath/assets para export estático si hiciera falta
+      # Configura GitHub Pages (inyecta assetPrefix/basePath e imágenes unoptimized)
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -72,26 +62,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/${{ steps.detect-package-manager.outputs.lockfile }}') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.cjs', '**/*.mjs', 'next.config.*') }}
+          key: ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.cjs', '**/*.mjs', 'next.config.*') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/${{ steps.detect-package-manager.outputs.lockfile }}') }}-
+            ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
-      - name: Install dependencies
-        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.install_cmd }}
-
-      # Build + Export explícitos (necesario para que exista ./out)
+      # Build + Export (usa pnpm exec para resolver binarios locales)
       - name: Build
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
+        run: pnpm exec next build
 
       - name: Export static site
-        run: ${{ steps.detect-package-manager.outputs.runner }} next export
+        run: pnpm exec next export
 
       # CNAME para el dominio personalizado
       - name: Add CNAME for custom domain
-        run: |
-          echo "comunicar.macondosoftwares.com" > ./out/CNAME
+        run: echo "comunicar.macondosoftwares.com" > ./out/CNAME
 
-      # 404 de respaldo (opcional) por si no tienes una página 404 en Next
+      # 404 de respaldo (opcional)
       - name: Ensure 404.html exists
         run: |
           if [ ! -f "./out/404.html" ] && [ -f "./out/index.html" ]; then
