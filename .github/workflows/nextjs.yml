@@ -21,7 +21,7 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
       CI: true
-      NPM_CONFIG_LEGACY_PEER_DEPS: "true"  # evita ERESOLVE por peers
+      NPM_CONFIG_LEGACY_PEER_DEPS: "true"  # por conflicto react19/vaul
 
     steps:
       - name: Checkout
@@ -50,12 +50,24 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund --legacy-peer-deps
 
-      - name: Build (static export via output: 'export')
+      # Con output:'export' Next 15 genera ./out en el build
+      - name: Build (static via output:'export')
         run: npx --no-install next build
 
-      - name: Add CNAME for custom domain
-        run: echo "comunicar.macondosoftwares.com" > ./out/CNAME
+      # Debug y guardas: asegurar que existe index.html
+      - name: Verify out folder
+        run: |
+          echo "------ ls -la out ------"
+          ls -la out || true
+          test -f out/index.html || (echo "❌ No existe out/index.html. Revisa next.config.mjs y que exista la ruta '/' (app/page.tsx o pages/index.tsx)." && exit 1)
 
+      # Evitar procesamiento por Jekyll
+      - name: Add .nojekyll and CNAME
+        run: |
+          touch ./out/.nojekyll
+          echo "comunicar.macondosoftwares.com" > ./out/CNAME
+
+      # 404 de respaldo (si no definiste una 404 propia)
       - name: Ensure 404.html exists
         run: |
           if [ ! -f "./out/404.html" ] && [ -f "./out/index.html" ]; then
