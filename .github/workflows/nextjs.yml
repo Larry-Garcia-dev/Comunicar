@@ -21,15 +21,12 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
       CI: true
+      # fuerza resolución de peer deps para evitar el ERESOLVE en CI
+      NPM_CONFIG_LEGACY_PEER_DEPS: "true"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Forzamos npm (ignoramos lockfiles de pnpm/yarn en el workspace)
-      - name: Force npm
-        run: |
-          echo "Using npm; ignoring pnpm/yarn lockfiles in workspace."
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -38,13 +35,11 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # Configura Pages (ajusta basePath/assetPrefix e imágenes unoptimized)
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           static_site_generator: next
 
-      # Cache incremental de Next.js
       - name: Restore Next.js cache
         uses: actions/cache@v4
         with:
@@ -53,21 +48,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-next-${{ hashFiles('**/package-lock.json') }}-
 
+      # Instala ignorando conflictos de peer deps (react 19 vs vaul 0.9.9)
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund --legacy-peer-deps
 
-      # Build + Export (static)
       - name: Build
         run: npx --no-install next build
 
       - name: Export static site
         run: npx --no-install next export
 
-      # Dominio personalizado
       - name: Add CNAME for custom domain
         run: echo "comunicar.macondosoftwares.com" > ./out/CNAME
 
-      # 404 de respaldo (opcional)
       - name: Ensure 404.html exists
         run: |
           if [ ! -f "./out/404.html" ] && [ -f "./out/index.html" ]; then
