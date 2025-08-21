@@ -21,8 +21,7 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
       CI: true
-      # fuerza resolución de peer deps para evitar el ERESOLVE en CI
-      NPM_CONFIG_LEGACY_PEER_DEPS: "true"
+      NPM_CONFIG_LEGACY_PEER_DEPS: "true"  # evita ERESOLVE por peers
 
     steps:
       - name: Checkout
@@ -48,15 +47,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-next-${{ hashFiles('**/package-lock.json') }}-
 
-      # Instala ignorando conflictos de peer deps (react 19 vs vaul 0.9.9)
       - name: Install dependencies
         run: npm ci --no-audit --no-fund --legacy-peer-deps
 
-      - name: Build
+      - name: Build (static export via output: 'export')
         run: npx --no-install next build
-
-      - name: Export static site
-        run: npx --no-install next export
 
       - name: Add CNAME for custom domain
         run: echo "comunicar.macondosoftwares.com" > ./out/CNAME
