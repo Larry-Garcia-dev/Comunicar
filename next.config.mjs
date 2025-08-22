@@ -10,8 +10,6 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
-  basePath: '/Comunicar',
-  assetPrefix: '/Comunicar/',
 }
 
 export default nextConfig
