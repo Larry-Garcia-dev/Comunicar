@@ -178,3 +178,9 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+.logoFooter {
+  width: 450px; /* Ajusta el tamaño según sea necesario */
+  height: auto;
+  margin: auto;
+}

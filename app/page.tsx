@@ -705,7 +705,7 @@ export default function ComunicarLanding() {
                 </ul>
               </div>
 
-              <div>
+              <div className="w-25%">
                 <h4 className="font-bold mb-4 font-[var(--font-heading)]">Comunicar</h4> 
                 <div className="flex space-x-4">
                   {/* <Button variant="ghost" size="icon" className="hover:text-primary">
@@ -717,7 +717,7 @@ export default function ComunicarLanding() {
                   <Button variant="ghost" size="icon" className="hover:text-primary">
                     <Facebook className="w-5 h-5" />
                   </Button> */}
-                  <img src="/logo.png" alt="" />
+                  <img className="logoFooter" src="/logo.png" alt="" />
                 </div>
               </div>
             </div>
