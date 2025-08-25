@@ -680,7 +680,7 @@ export default function ComunicarLanding() {
       <footer className="bg-card py-12 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-4 gap-8 ">
               <div>
                 <div className="text-2xl font-bold text-primary mb-4 font-[var(--font-heading)]">Comunicar</div>
                 <p className="text-muted-foreground">Transformando relaciones, impulsando el futuro digital.</p>
@@ -705,8 +705,8 @@ export default function ComunicarLanding() {
                 </ul>
               </div>
 
-              <div className="w-25%">
-                <h4 className="font-bold mb-4 font-[var(--font-heading)]">Comunicar</h4> 
+              <div className="w-fit h-fit flex justify-center flex-col">
+                <h4 className="font-bold ml-10 mb-4 font-[var(--font-heading)]">Comunicar</h4> 
                 <div className="flex space-x-4">
                   {/* <Button variant="ghost" size="icon" className="hover:text-primary">
                     <Linkedin className="w-5 h-5" />
@@ -717,7 +717,7 @@ export default function ComunicarLanding() {
                   <Button variant="ghost" size="icon" className="hover:text-primary">
                     <Facebook className="w-5 h-5" />
                   </Button> */}
-                  <img className="logoFooter" src="/logo.png" alt="" />
+                  <img className="w-40 h-40 p-0" src="/logo.png" alt="" />
                 </div>
               </div>
             </div>
