@@ -462,7 +462,7 @@ export default function ComunicarLanding() {
             <div className="text-center mb-16 animate-on-scroll">
               <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
                 Durante más de dos décadas, Comunicar ha sido el motor detrás de numerosos proyectos transformadores.
-                Desde colaborar en el desarrollo de superaplicaciones con WebCloud, hasta impulsar proyectos innovadores
+                Desde colaborar en el desarrollo de superaplicaciones con Whale Cloud, hasta impulsar proyectos innovadores
                 con Claro Colombia y la Gobernación de Caldas, nuestra experiencia abarca una amplia gama de sectores. A
                 través de cada colaboración, hemos generado alianzas sólidas y resultados exitosos que demuestran
                 nuestra capacidad para conectar tecnología, negocios y gobiernos de manera efectiva.
