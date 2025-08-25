@@ -473,7 +473,7 @@ export default function ComunicarLanding() {
               <Card className="animate-on-scroll hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <Badge className="w-fit mb-2">Tecnología</Badge>
-                  <CardTitle className="font-[var(--font-heading)]">WebCloud</CardTitle>
+                  <CardTitle className="font-[var(--font-heading)]">Whale Cloud</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
@@ -706,9 +706,9 @@ export default function ComunicarLanding() {
               </div>
 
               <div>
-                <h4 className="font-bold mb-4 font-[var(--font-heading)]">Síguenos</h4>
+                <h4 className="font-bold mb-4 font-[var(--font-heading)]">Comunicar</h4> 
                 <div className="flex space-x-4">
-                  <Button variant="ghost" size="icon" className="hover:text-primary">
+                  {/* <Button variant="ghost" size="icon" className="hover:text-primary">
                     <Linkedin className="w-5 h-5" />
                   </Button>
                   <Button variant="ghost" size="icon" className="hover:text-primary">
@@ -716,13 +716,14 @@ export default function ComunicarLanding() {
                   </Button>
                   <Button variant="ghost" size="icon" className="hover:text-primary">
                     <Facebook className="w-5 h-5" />
-                  </Button>
+                  </Button> */}
+                  <img src="/logo.png" alt="" />
                 </div>
               </div>
             </div>
 
             <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-              <p>&copy; 2025 Comunicar. Todos los derechos reservados.</p>
+              <p>&copy; 2023 Comunicar. Todos los derechos reservados.</p>
             </div>
           </div>
         </div>
