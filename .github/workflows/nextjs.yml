@@ -62,7 +62,7 @@ jobs:
       - name: Add .nojekyll and CNAME
         run: |
           touch ./out/.nojekyll
-          echo "comunicar.macondosoftwares.com" > ./out/CNAME
+          echo "comunicar.com.co" > ./out/CNAME
 
       - name: Ensure 404.html exists
         run: |
